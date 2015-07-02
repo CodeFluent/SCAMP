@@ -14,9 +14,12 @@ namespace DocumentDbRepositories.Implementation
     internal class UserRepository : IUserRepository
     {
         DocDb docdb;
+        private ScampUser cachedUser;
+
         public UserRepository(DocDb docdb)
         {
             this.docdb = docdb;
+            this.cachedUser = null;
         }
         public async Task CreateUser(ScampUser newUser)
 		{
@@ -26,6 +29,8 @@ namespace DocumentDbRepositories.Implementation
                     return;
 
                 var created = await docdb.Client.CreateDocumentAsync(docdb.Collection.SelfLink, newUser);
+                // Purge the cache
+                cachedUser = null;
             }
             catch(Exception ex)
             {
@@ -33,16 +38,24 @@ namespace DocumentDbRepositories.Implementation
             }
         }
 
-		public async Task<ScampUser> GetUserbyId(string userId)
+        // Returns the ScampUser based on the given userId or null
+        // if the user wasn't found from the database
+        public async Task<ScampUser> GetUserById(string userId)
         {
             if (!(await docdb.IsInitialized))
                 return null;
 
-            // get specified user by ID
-            var query = from u in docdb.Client.CreateDocumentQuery<ScampUser>(docdb.Collection.SelfLink)
-                              where u.Id == userId
-                              select u;
-            return await query.AsDocumentQuery().FirstOrDefaultAsync();
+            // Unless the user with given id is found from the cache, fetch it
+            if (cachedUser == null || cachedUser.Id != userId)
+            {
+                // get specified user by ID
+                var query = from u in docdb.Client.CreateDocumentQuery<ScampUser>(docdb.Collection.SelfLink)
+                            where u.Id == userId
+                            select u;
+                cachedUser = await query.AsDocumentQuery().FirstOrDefaultAsync();
+            }
+
+            return cachedUser;
         }
 
         public async Task UpdateUser(ScampUser user)
@@ -51,6 +64,8 @@ namespace DocumentDbRepositories.Implementation
                 return;
 
             var savedUser = await docdb.Client.ReplaceDocumentAsync(user.SelfLink, user);
+            // Purge the cache
+            cachedUser = null;
 
             //TODO: exception handling, etc... 
         }
@@ -78,6 +93,15 @@ namespace DocumentDbRepositories.Implementation
             {
                 throw;
             }
+        }
+
+        public async Task<int> GetUserCount()
+        {
+            var userList = await docdb.Client
+                .CreateDocumentQuery(docdb.Collection.SelfLink, "SELECT u.id FROM users u WHERE u.type = 'user'")
+                .AsDocumentQuery()
+                .ToListAsync();
+            return userList.Count;
         }
     }
 }

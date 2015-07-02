@@ -14,7 +14,7 @@
           <a href="#/dashboard"><i class="fa fa-dashboard"></i>Dashboard</a>
         </li>
         <li ng-class="isActive('/group-manager') ? 'active' : 'menu-underline'"
-            ng-show="userProfile.isSystemAdmin || userProfile.isGroupAdmin || userProfile.isGroupManager">
+            ng-show="userProfile.isGroupAdmin || userProfile.isGroupManager">
           <a href="#/group-manager"><i class="fa fa-users"></i>Group Manager</a>
         </li>
         <li ng-class="isActive('/settings') ? 'active' : 'menu-underline'"

@@ -60,6 +60,7 @@ angular.module('scamp')
               $scope.dashboardStatus = 'loaded';
             } else {
               $scope.groups = [];
+              $scope.dashboardStatus = 'loaded';
               console.log('User ' + userGUID + ' doesn\'t have permission to any groups for ' + $scope.state.view + ' view');
             }
           })

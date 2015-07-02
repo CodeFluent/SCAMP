@@ -32,19 +32,18 @@ namespace ScampApi.Controllers
         }
 
         [HttpGet(Name = "Groups.GetAll")]
-        public async Task<IEnumerable<GroupSummary>> Get()
+        public async Task<IActionResult> Get()
         {
-            IEnumerable<ScampResourceGroup> groups;
-            //LINKED TO UI
-            if (await _securityHelper.IsSysAdmin())
+            ScampUser currentUser = await _securityHelper.GetOrCreateCurrentUser();
+            List<GroupSummary> groupSummaries = new List<GroupSummary>();
+            foreach (ScampUserGroupMbrship group in currentUser.GroupMembership)
             {
-                groups = await _groupRepository.GetGroups();
+                if (await _securityHelper.CurrentUserCanManageGroup(group.Id))
+                {
+                    groupSummaries.Add(MapToGroupSummary(group));
+                }
             }
-            else
-            {
-                groups = await _groupRepository.GetGroupsByUser(await _securityHelper.GetUserReference());
-            }
-            return groups.Select(MapToSummary);
+            return new ObjectResult(groupSummaries) { StatusCode = 200 };
         }
 
         /// <summary>
@@ -92,7 +91,7 @@ namespace ScampApi.Controllers
             //TODO: group parameter validation 
 
             // get current user
-            var currentUser = await _securityHelper.GetCurrentUser();
+            var currentUser = await _securityHelper.GetOrCreateCurrentUser();
 
             // build the resource group object
             var group = new ScampResourceGroup()
@@ -141,7 +140,7 @@ namespace ScampApi.Controllers
         [HttpPut("{groupId}")]
         public async Task<IActionResult> Put(string groupId, [FromBody]Group value)
         {
-            ScampUser currentUser = await _securityHelper.GetCurrentUser();
+            ScampUser currentUser = await _securityHelper.GetOrCreateCurrentUser();
             ScampResourceGroup group = await _groupRepository.GetGroup(groupId);
             // Only the group budget owner can edit the group information
             if (group.Budget.OwnerId == currentUser.Id)
@@ -176,12 +175,12 @@ namespace ScampApi.Controllers
         }
 
         #region Mapping Functions
-        private GroupSummary MapToSummary(ScampResourceGroup docDbGroup)
+        private GroupSummary MapToGroupSummary(ScampUserGroupMbrship groupMembership)
         {
             return new GroupSummary
             {
-                Id = docDbGroup.Id,
-                Name = docDbGroup.Name,
+                Id = groupMembership.Id,
+                Name = groupMembership.Name,
             };
         }
 

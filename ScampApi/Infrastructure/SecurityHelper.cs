@@ -27,42 +27,23 @@ namespace ScampApi.Infrastructure
             _groupRepository = groupRepository;
         }
 
-        public async Task<ScampUserReference> GetUserReference()
-        {
-            return Mapper.Map<ScampUserReference>(await GetCurrentUser());
-        }
-
         // retrieves the current user
         public async Task<ScampUser> GetCurrentUser()
         {
             // get current user's Id from security context
             var userId = Context.User.Claims.FirstOrDefault(c => c.Type.Contains("objectidentifier")).Value;
-
-            // if user object isn't already in object, save to reduced DB hits
-            if (cachedCurrentUser == null || cachedCurrentUser.Id != userId)
-                cachedCurrentUser = await GetUserById(userId);
-
-            // return object to call
-            return cachedCurrentUser;
+            return await _userRepository.GetUserById(userId); ;
         }
 
-        /// <summary>
-        /// gets a specific user by their Id
-        /// </summary>
-        /// <param name="userId"></param>
-        /// <returns></returns>
-        public async Task<ScampUser> GetUserById(string userId)
+        // retrieves the current user and creates it if it is not yet found
+        public async Task<ScampUser> GetOrCreateCurrentUser()
         {
-            // if user object is already in object, and matched requested value, return it
-            if (cachedCurrentUser != null && cachedCurrentUser.Id == userId)
-                return cachedCurrentUser;
-
-            // user wasn't already cached, to get it
-            ScampUser tmpUser = await _userRepository.GetUserbyId(userId);
-            if (tmpUser == null) // insert if user doesn't exist
+            ScampUser currentUser = await GetCurrentUser();
+            if (currentUser == null) // insert if user doesn't exist
             {
+                var userId = Context.User.Claims.FirstOrDefault(c => c.Type.Contains("objectidentifier")).Value;
                 // build user object
-                tmpUser = new ScampUser()
+                currentUser = new ScampUser()
                 {
                     Id = userId,
                     Name =
@@ -74,10 +55,13 @@ namespace ScampApi.Infrastructure
                 };
 
                 // insert into database   
-                await _userRepository.CreateUser(tmpUser);
+                await _userRepository.CreateUser(currentUser);
+                // fetch from database so that the returned object will have
+                // proper SelfLink property
+                currentUser = await _userRepository.GetUserById(userId);
             }
 
-            return tmpUser;
+            return currentUser;
         }
 
         /// <summary>
@@ -86,7 +70,7 @@ namespace ScampApi.Infrastructure
         /// <returns>true if the user is</returns>
         public async Task<bool> IsGroupManager()
         {
-            var user = await GetCurrentUser();
+            var user = await GetOrCreateCurrentUser();
             // user is a manager of this group if they are in the group membership list and are flagged "isManager"
             var checkMgr = user.GroupMembership.ToList().Any(q => q.isManager);
             return checkMgr;
@@ -99,7 +83,7 @@ namespace ScampApi.Infrastructure
         /// <returns>true if the user is</returns>
         public async Task<bool> IsGroupManager(string groupId)
         {
-            var user = await GetCurrentUser();
+            var user = await GetOrCreateCurrentUser();
             var grp = await _groupRepository.GetGroup(groupId);
             // user is a manager of this group if they are in the group membership list and are flagged "isManager"
             var checkMgr = grp.Members.ToList().Any(q => q.Id == user.Id && q.isManager);
@@ -113,7 +97,7 @@ namespace ScampApi.Infrastructure
         /// <returns>true is the user is</returns>
         public async Task<bool> IsGroupAdmin(string groupId)
         {
-            var user = await GetCurrentUser();
+            var user = await GetOrCreateCurrentUser();
             var grp = await _groupRepository.GetGroup(groupId);
             // user is a manager of this group if they are in the group membership list and are flagged "isManager"
             var checkMgr = (grp.Budget.OwnerId == user.Id);
@@ -126,7 +110,7 @@ namespace ScampApi.Infrastructure
         /// <returns>true is the user is</returns>
         public async Task<bool> IsGroupAdmin()
         {
-            var user = await GetCurrentUser();
+            var user = await GetOrCreateCurrentUser();
             // user is a group admin if they have a budget > 0
             var checkMgr = user.budget != null && user.budget.unitsBudgeted > 0;
             return checkMgr;
@@ -134,13 +118,13 @@ namespace ScampApi.Infrastructure
 
         public async Task<bool> IsSysAdmin()
         {
-            ScampUser user = await GetCurrentUser();
+            ScampUser user = await GetOrCreateCurrentUser();
 
             return user.IsSystemAdmin;
         }
         public async Task<bool> CurrentUserCanManageGroup(string groupId)
         {
-            var currentUser = await GetCurrentUser();
+            var currentUser = await GetOrCreateCurrentUser();
             var group = await _groupRepository.GetGroup(groupId);
             // Groups can be managers by system and group admins and the managers
             // of the group in question.

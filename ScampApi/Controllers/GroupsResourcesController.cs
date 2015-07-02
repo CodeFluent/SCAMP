@@ -149,7 +149,7 @@ namespace ScampApi.Controllers
         // specified resource
         private async Task<bool> CanManageResource(ScampResource resource, ResourceAction action)
         {
-            ScampUser currentUser = await _securityHelper.GetCurrentUser();
+            ScampUser currentUser = await _securityHelper.GetOrCreateCurrentUser();
 
             // System admin can do everything EXCEPT create a resource
             // to create a resource, you must be a group admin

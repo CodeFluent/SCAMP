@@ -184,7 +184,7 @@ angular.module('scamp')
     };
 
     var getGroups = function () {
-        userSvc.getGroupList($scope.userProfile.id, 'admin')
+        groupsSvc.getGroups()
         .then(function (response) {
             if (response.constructor === Array && response.length > 0) {
                 $scope.groups = response;

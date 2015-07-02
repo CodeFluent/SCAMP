@@ -56,14 +56,14 @@ namespace ScampApi.Controllers.Controllers
         public async Task<IActionResult> GetResourcesforUser(string userId)
         {
             List<ScampResourceSummary> resourceList = new List<ScampResourceSummary>();
-            ScampUser currentUser = await _securityHelper.GetCurrentUser();
+            ScampUser currentUser = await _securityHelper.GetOrCreateCurrentUser();
 
             // request must be systemAdmin, or the requesting user
             if (!currentUser.IsSystemAdmin && currentUser.Id != userId)
                 return new ObjectResult("User is not authorized to perform this action against specific resource(s)") { StatusCode = 401 };
 
             // execute query
-            ScampUser user = await _userRepository.GetUserbyId(userId);
+            ScampUser user = await _userRepository.GetUserById(userId);
             if (user == null)
                 return new ObjectResult("requested resource not available") { StatusCode = 204 };
 

@@ -89,7 +89,7 @@ namespace ScampApi.Controllers.Controllers
             if (!await _securityHelper.IsSysAdmin())
                 return new ObjectResult("Access Denied, requestor is not a system administrator") { StatusCode = 403 };
 
-            ScampUser tmpUser = await _userRepository.GetUserbyId(groupManagerSummary.Id);
+            ScampUser tmpUser = await _userRepository.GetUserById(groupManagerSummary.Id);
             bool doingAdd = tmpUser == null;
 
             // if we're doing add operations
@@ -133,7 +133,7 @@ namespace ScampApi.Controllers.Controllers
                 return new HttpStatusCodeResult(403); // Forbidden
 
             // get subscription
-            ScampUser tmpUser = await _userRepository.GetUserbyId(userId);
+            ScampUser tmpUser = await _userRepository.GetUserById(userId);
             if (tmpUser == null) // if not found
                 return new ObjectResult("specified group manager does not exist") { StatusCode = 400 };
 

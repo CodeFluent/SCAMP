@@ -46,7 +46,9 @@ namespace ProvisioningLibrary
                 this._StateUpdateTableClient = this._StateUpdateStorageAccount.CreateCloudTableClient();
 
                 this._ActivityLogTable = this._ActivityLogTableClient.GetTableReference(sActivityLogTableName);
+                this._ActivityLogTable.CreateIfNotExists();
                 this._StateUpdateTable = this._StateUpdateTableClient.GetTableReference(sStateUpdateLogTableName);
+                this._StateUpdateTable.CreateIfNotExists();
 
             Debug.WriteLine("Storage for VolatileStorage Controller is now connected");
         }

@@ -21,15 +21,25 @@ namespace KeyVaultRepositories.Implementation
         {
             var secretKey = SecretKey(resourceId, key);
             var client = _keyVaultClient.GetClient();
-            var secret = await client.GetSecretAsync(_keyVaultClient.GetKeyVaultUrl(), secretKey);
-            return secret.Value;
+            if (client != null)
+            {
+                var secret = await client.GetSecretAsync(_keyVaultClient.GetKeyVaultUrl(), secretKey);
+                return secret.Value;
+            }
+            else
+            {
+                return "";
+            }
         }
 
         public async Task UpsertSecret(string resourceId, string key, string value)
         {
             var secretKey = SecretKey(resourceId, key);
             var client = _keyVaultClient.GetClient();
-            await client.SetSecretAsync(_keyVaultClient.GetKeyVaultUrl(), secretKey, value);
+            if (client != null)
+            {
+                await client.SetSecretAsync(_keyVaultClient.GetKeyVaultUrl(), secretKey, value);
+            }
         }
 
 
@@ -38,7 +48,10 @@ namespace KeyVaultRepositories.Implementation
         {
             var secretKey = SecretKey(resourceId, key);
             var client = _keyVaultClient.GetClient();
-            await client.DeleteSecretAsync(_keyVaultClient.GetKeyVaultUrl() , secretKey);
+            if (client != null)
+            {
+                await client.DeleteSecretAsync(_keyVaultClient.GetKeyVaultUrl(), secretKey);
+            }
         }
     }
 }

@@ -24,14 +24,21 @@ namespace KeyVaultRepositories
 
             _keyVaultUrl = _configuration["KeyVault:Url"];
 
+            if (_keyVaultUrl == null)
+            {
+                _keyVaultClient = null;
+            }
+            else
+            {
 #if DEBUG
-            //This should be used only during development
-            _keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(GetAccessToken));
+                //This should be used only during development
+                _keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(GetAccessToken));
 #else
-            //This use certificate service in Azure platform and doesn't need shared keys
-            _keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(GetAccessToken));
-            clientAssertionCertPfx = FindCertificateByThumbprint(_configuration["KeyVault:AuthCertThumbprintSetting"]);
+                //This use certificate service in Azure platform and doesn't need shared keys
+                _keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(GetAccessToken));
+                clientAssertionCertPfx = FindCertificateByThumbprint(_configuration["KeyVault:AuthCertThumbprintSetting"]);
 #endif
+            }
         }
 
         public KeyVaultClient GetClient()

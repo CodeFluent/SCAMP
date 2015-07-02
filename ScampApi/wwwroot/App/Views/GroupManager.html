@@ -202,18 +202,18 @@
                       </td>
                       <td>
                         <input type="checkbox" ng-model="user.isManager"
-                               ng-disabled="!(userProfile.isGroupAdmin || userProfile.isSystemAdmin)">
+                               ng-disabled="!userProfile.isGroupAdmin">
                       </td>
                       <td>
                         <input type="number" class="form-control"
                                ng-model="user.unitsBudgeted"
-                               ng-disabled="!(userProfile.isGroupAdmin || userProfile.isSystemAdmin)">
+                               ng-disabled="!userProfile.isGroupAdmin">
                       </td>
                       <td>
                         <button type="button" class="btn btn-default btn-md"
                           ng-click="updateUser(user)"
                           ng-show="!user.loading"
-                          ng-disabled="!(userProfile.isGroupAdmin || userProfile.isSystemAdmin)">
+                          ng-disabled="!userProfile.isGroupAdmin">
                           <span class="glyphicon glyphicon-save" aria-hidden="true"></span>
                         </button>
                         <button type="button" class="btn btn-default btn-md"

@@ -191,7 +191,7 @@ namespace ScampApi.Controllers
             //}
 
             // get group details
-            var tmpUser = await _userRepository.GetUserbyId(userId);
+            var tmpUser = await _userRepository.GetUserById(userId);
             if (tmpUser == null) // group not found, return appropriately
                 return HttpNotFound();
 
@@ -228,7 +228,7 @@ namespace ScampApi.Controllers
                 return new HttpStatusCodeResult(403); // Forbidden
             }
 
-            var requestingUser = await _securityHelper.GetCurrentUser();
+            var requestingUser = await _securityHelper.GetOrCreateCurrentUser();
             // don't allow user to remove themselves
             if (requestingUser.Id == userId)
                 return new ObjectResult("User cannot remove themselves") { StatusCode = 403 };

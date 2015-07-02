@@ -13,21 +13,27 @@ angular.module('scamp')
         return viewLocation === $location.path();
     };
 
+    // Flag to avoid multiple parallel fetches
+    var fetchingUserProfile = false;
     var fetchUserProfile = function () {
+      if (fetchingUserProfile) return;
       console.log("getting user profile data");
 
       // fetch user profile data from API
+      fetchingUserProfile = true;
       homeSvc.getUserProfile().success(function (results) {
         console.log("get successfull");
         $scope.userProfile = results;
         $scope.loadingMessage = "";
         console.log($scope.userProfile);
         $scope.$broadcast('userProfileFetched');
+        fetchingUserProfile = false;
       }).error(function (err) {
         console.log("get failed");
         $scope.error = err;
         $scope.loadingMessage = "";
         console.log("error:" + err);
+        fetchingUserProfile = false;
       });
     };
 

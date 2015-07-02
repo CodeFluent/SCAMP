@@ -41,7 +41,7 @@ namespace ScampApi.Controllers.Controllers
         public async Task<IActionResult> Get(string userId, string view)
         {
             // get requested user document
-            ScampUser userDoc = await _securityHelper.GetUserById(userId);
+            ScampUser userDoc = await _userRepository.GetUserById(userId);
             if (userDoc == null)
                 return HttpNotFound();
 

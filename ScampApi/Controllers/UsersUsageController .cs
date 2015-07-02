@@ -46,7 +46,7 @@ namespace ScampApi.Controllers.Controllers
             //TODO: authorization check
 
             // get requested user document
-            ScampUser userDoc = await _userRepository.GetUserbyId(userId);
+            ScampUser userDoc = await _userRepository.GetUserById(userId);
             if (userDoc == null)
                 return HttpNotFound();
 

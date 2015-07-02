@@ -55,7 +55,7 @@ namespace DocumentDbRepositories.Implementation
             return await query.AsDocumentQuery().ToListAsync();
         }
 
-        public async Task<IEnumerable<ScampResourceGroup>> GetGroupsByUser(ScampUserReference user)
+        public async Task<IEnumerable<ScampResourceGroup>> GetGroupsByUser(string userId)
         {
             if (!(await docdb.IsInitialized))
                 return null;
@@ -77,7 +77,7 @@ namespace DocumentDbRepositories.Implementation
                                 " AND admin.id = @adminId",
                 Parameters = new SqlParameterCollection
                     {
-                       new SqlParameter { Name = "@adminId", Value = user.Id }
+                       new SqlParameter { Name = "@adminId", Value = userId }
                     }
             };
             var query = docdb.Client.CreateDocumentQuery<ScampResourceGroup>(docdb.Collection.SelfLink, sql);

@@ -36,25 +36,34 @@ namespace ScampApi.Controllers
     [HttpGet(Name = "User.CurrentUser")]
     public async Task<User> Get()
     {
-      ScampUser tmpUser = null;
+        // fetch current user
+        ScampUser currentUser = await _securityHelper.GetCurrentUser();
+        if (currentUser == null)
+        {
+            currentUser = await _securityHelper.GetOrCreateCurrentUser();
+            // Check if this was the first user created to the system
+            int userCount = await _userRepository.GetUserCount();
+            if (userCount == 1)
+            {
+                // Make the first user of the system a system admin so that
+                // it has the permissions to setup the system
+                currentUser.IsSystemAdmin = true;
+                await _userRepository.UpdateUser(currentUser);
+            }
+        }
 
-      // fetch user
-      tmpUser = await _securityHelper.GetCurrentUser();
+        // Create user object to be returned
+        var user = new User()
+        {
+            Id = currentUser.Id,
+            Name = currentUser.Name,
+            Email = currentUser.Email,
+            isSystemAdmin = await _securityHelper.IsSysAdmin(),
+            isGroupAdmin = await _securityHelper.IsGroupAdmin(),
+            isGroupManager = await _securityHelper.IsGroupManager()
+        };
 
-      //TODO: we're going to need this for authorizing requests, so we should probably cache it
-      //return object for user...
-
-      var user = new User()
-      {
-        Id = tmpUser.Id,
-        Name = tmpUser.Name,
-        Email = tmpUser.Email,
-        isSystemAdmin = await _securityHelper.IsSysAdmin(),
-        isGroupAdmin = await _securityHelper.IsGroupAdmin(),
-        isGroupManager = await _securityHelper.IsGroupManager()
-      };
-
-      return user;
+        return user;
     }
   }
 }

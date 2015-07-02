@@ -113,6 +113,8 @@ The other deviation is that for SCAMP to interact with the KeyVault, you'll need
 
 **Note:** The permissions granted here should be considered temporary at this time. These will be more finely tuned before we finalize our release. 
 
+It is possible to run SCAMP without a KeyVault, but then you won't be able to do any operations that require the access to the Azure subscription. This can be useful, for example, if one wants to develop the front-end and the user and group management functionalities, but doesn't want to create a KeyVault.
+In this case, leave out all the configuration settings that start with `KeyVault:`.
 
 ##Running SCAMP for the first time##
 Once you've configured the various services and captured the necessary configuration information, its time attempt to run the application locally. 

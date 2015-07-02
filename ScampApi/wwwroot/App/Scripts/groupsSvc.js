@@ -6,6 +6,9 @@ angular.module('scamp')
         return scamp.utils.restAjaxPromise($http, $q, method, url, data);
     };
     return {
+        getGroups: function () {
+            return makeRequest('GET', apiPath);
+        },
         getGroup: function (groupId) {
             return makeRequest('GET', apiPath + '/' + groupId);
         },

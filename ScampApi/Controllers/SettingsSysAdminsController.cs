@@ -65,7 +65,7 @@ namespace ScampApi.Controllers.Controllers
             if (!await _securityHelper.IsSysAdmin())
                 return new ObjectResult("Access Denied, requestor is not a system administrator") { StatusCode = 403 };
 
-            ScampUser tmpUser = await _userRepository.GetUserbyId(usrSummary.Id);
+            ScampUser tmpUser = await _userRepository.GetUserById(usrSummary.Id);
 
             // if user wasn't found, add them to the scamp DB
             if (tmpUser == null)
@@ -97,7 +97,7 @@ namespace ScampApi.Controllers.Controllers
             if (adminList.Count <= 1)
                 return new ObjectResult("This would remove the last system admin. There must always be at least 1.") { StatusCode = 403 };
 
-            ScampUser tmpUser = await _userRepository.GetUserbyId(userId);
+            ScampUser tmpUser = await _userRepository.GetUserById(userId);
 
             // if user wasn't found, add them to the scamp DB
             if (tmpUser == null)
