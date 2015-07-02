@@ -41,7 +41,7 @@ With the Nuget packages all resolved, we're ready to build the project. In Visua
 If you encounter an error at any point in this process, [please post an issue](https://github.com/SimpleCloudManagerProject/SCAMP/issues/new) to our GitHub repository.  
 
 ##Azure Services Setup##
-The next step in setting up SCAMP is to set up the necessary hosted services on which SCAMP will depend. In this section will walk you through creating and configuring these services.
+The next step in setting up SCAMP is to set up the necessary hosted services on which SCAMP will depend. This section will walk you through creating and configuring these services. This section is based on your familiarity with Azure portals, [new portal](https://portal.azure.com) or [old portal](https://manage.windowsazure.com), you will be required to switch between the two to setup some services.
 
 As you set up the resources, please pay close attention to the values you are asked to capture. These will be used later when you try to run SCAMP for the first time. Additionally, when possible you may want to place all the Azure services into the same resource group. When not possibly, you'll at least want to place them into the same Azure region.  
 
@@ -55,7 +55,7 @@ Following [the official instructions to create a storage account](https://azure.
 	DefaultEndpointsProtocol=[http|https];AccountName=myAccountName;AccountKey=myAccountKey
 
 ### Create a DocumentDB collection
-SCAMP requires a single DocumentDB account. Please [leverage the official instructions  to create an account](https://azure.microsoft.com/en-us/documentation/articles/documentdb-create-account/). For development as well as many small SCAMP deployments, the *S1* account tier will be acceptable. The DocumentDB account creation process could take upwards of 10 minutes. 
+SCAMP requires a single DocumentDB account,switch to the [new Azure portal](https://portal.azure.com). Please [leverage the official instructions  to create an account](https://azure.microsoft.com/en-us/documentation/articles/documentdb-create-account/). For development as well as many small SCAMP deployments, the *S1* account tier will be acceptable. The DocumentDB account creation process could take upwards of 10 minutes. 
 
 After you have created the account, be sure to note the **account URI**, and one of its **secret keys**. These can be found by viewing the settings->keys blade in the Azure portal. 
 
@@ -79,7 +79,14 @@ To register your application, follow the appropriate instructions:
 - [Register with Azure AD](https://azure.microsoft.com/en-us/documentation/articles/mobile-services-how-to-register-active-directory-authentication/)
 - [Register with Office 365](https://msdn.microsoft.com/en-us/office/office365/howto/add-common-consent-manually)
 
+If you have not registered an App with Azure or familiar with Azure portal, “Register with office 365” link covers the steps on how to navigate Azure management portal, to register your app with Active Directory, find out your Client ID, and App Secret. Which you will need in later sections.
+
 In both cases, make sure you register the URL for each location you want to be able to run the application from. You'll also need to note your tenant ID (mydomain.com), the tenant ID (available from the portal URL or via [PowerShell](http://blogs.technet.com/b/heyscriptingguy/archive/2013/12/31/get-windows-azure-active-directory-tenant-id-in-windows-powershell.aspx)), and the client ID for each application you registered. 
+To get your tenant ID from Azure portal URL, you will have to be on the [old Azure portal](https://manage.windowsazure.com). 
+1.	Navigate to your Active Directory in the left navigation panel on management portal.
+2.	Click on name of your Active Directory.
+3.	On the page of your  Active Directory, take note of the guide in the URL section /Directory/ [Tenant ID] /directoryQuickStart 
+
 
 #### Step 2:  Enable the OAuth2 implicit grant for your application
 
